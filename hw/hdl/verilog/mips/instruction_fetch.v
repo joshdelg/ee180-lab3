@@ -30,7 +30,7 @@ module instruction_fetch (
 
     // wire [31:0] pc_next = (jump_target) ? j_addr : (pc + 3'h4);
     wire [31:0] pc_next = pc + 3'h4;
-    wire [31:0] pc_branch = pc_next + branch_offset;
+    wire [31:0] pc_branch = pc + branch_offset;
     wire [31:0] pc_jump = j_addr;
 
     wire [31:0] new_pc = (should_branch) ? pc_branch :

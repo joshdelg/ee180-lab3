@@ -235,7 +235,7 @@ module decode (
     assign jump_branch = |{isBEQ & isEqual,
                            isBNE & ~isEqual};
     // @joshdelg Assign the target of a branch to imm
-    assign branch_offset = imm << 2;
+    assign branch_offset = imm <<< 2; // Arithmetic left shift
 
     assign jump_target = isJ;
     assign jump_reg = 1'b0;
