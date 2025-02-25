@@ -230,12 +230,26 @@ module decode (
 //******************************************************************************
 
     wire isEqual = rs_data == rt_data;
-
     // Single bit values for if this type of control flow will be taken
+
+    // @ bala
+    // bgez: when bgeznl and rs_data >= 0 
+    // bgtz: when bgtz and rs_data > 0
+    // blez: when rs <= 0 isBLEZ
+    // bltz: when rs < 0 and isBLTZNL
+    // bne: when bne and ~isEqual
+    // 
     assign jump_branch = |{isBEQ & isEqual,
-                           isBNE & ~isEqual};
+                           isBNE & ~isEqual,
+                           isBGTZ & (rs_data > 0),
+                           isBGEZNL & (rs_data >= 0),
+                           isBLTZNL & ($signed(rs_data) < 0),
+                           isBLEZ & ($signed(rs_data) <= 0)
+                           };
     // @joshdelg Assign the target of a branch to imm
     assign branch_offset = imm <<< 2; // Arithmetic left shift
+    
+
 
     assign jump_target = isJ;
     assign jump_reg = 1'b0;
