@@ -33,17 +33,18 @@ module alu (
             `ALU_ADDU:  alu_result = alu_op_x + alu_op_y;
             `ALU_AND:   alu_result = alu_op_x & alu_op_y;
             `ALU_OR:    alu_result = alu_op_x | alu_op_y;
-            `ALU_XOR:   alu_result = alu_op_x ^ alu_op_y; // @joshdelg Added implementation of XOR
+            `ALU_XOR:   alu_result = alu_op_x ^ alu_op_y;               // @joshdelg Added implementation of XOR
             `ALU_SUB:   alu_result = alu_op_x - alu_op_y;
             `ALU_SUBU:  alu_result = alu_op_x - alu_op_y;
+            `ALU_MUL:   alu_result = alu_op_x_signed * alu_op_y_signed; // @joshdelg Added implementation for MUL
             `ALU_SLTU:  alu_result = alu_op_x < alu_op_y;
             `ALU_SLT:   alu_result = alu_op_x_signed < alu_op_y_signed;
-            `ALU_SRL:   alu_result = alu_op_y >> alu_op_x[4:0]; // shift operations are Y >> X
+            `ALU_SRL:   alu_result = alu_op_y >> alu_op_x[4:0];         // shift operations are Y >> X
             `ALU_SLL:   alu_result = alu_op_y << alu_op_x[4:0];
             `ALU_SRA:   alu_result = alu_op_y_signed >>> alu_op_x[4:0]; // @joshdelg Added implementation of SRA
             `ALU_PASSX: alu_result = alu_op_x;
             `ALU_PASSY: alu_result = alu_op_y;
-            default:    alu_result = 32'hxxxxxxxx;   // undefined
+            default:    alu_result = 32'hxxxxxxxx;                      // undefined
         endcase
     end
 

@@ -91,12 +91,13 @@ module decode (
 
     wire isSLL = (op == `SPECIAL) & (funct == `SLL);
     wire isSRL = (op == `SPECIAL) & (funct == `SRL);
-    wire isSRA = (op == `SPECIAL) & (funct == `SRA); // @joshdelg Implementation of SRA
+    wire isSRA = (op == `SPECIAL) & (funct == `SRA);    // @joshdelg Implementation of SRA
     wire isSLLV = (op == `SPECIAL) & (funct == `SLLV);
     wire isSRLV = (op == `SPECIAL) & (funct == `SRLV);
+    wire isSRAV = (op == `SPECIAL) & (funct == `SRAV);  // @joshdelg Implementation of SRAV
 
-    wire isShiftImm = isSLL | isSRL | isSRA; // @joshdelg Added isSRA
-    wire isShift = isShiftImm | isSLLV | isSRLV;
+    wire isShiftImm = isSLL | isSRL | isSRA;                // @joshdelg Added isSRA
+    wire isShift = isShiftImm | isSLLV | isSRLV | isSRAV;   // @joshdelg Added isSRAV
 
 //******************************************************************************
 // ALU instructions decode / control signal for ALU datapath
@@ -131,9 +132,12 @@ module decode (
             {`SPECIAL, `SLTU}:  alu_opcode = `ALU_SLTU;
             {`SPECIAL, `SLL}:   alu_opcode = `ALU_SLL;
             {`SPECIAL, `SRL}:   alu_opcode = `ALU_SRL;
+            {`SPECIAL, `SRA}:   alu_opcode = `ALU_SRA; // @joshdelg Added implementation of SRA
             {`SPECIAL, `SLLV}:  alu_opcode = `ALU_SLL;
             {`SPECIAL, `SRLV}:  alu_opcode = `ALU_SRL;
-            {`SPECIAL, `SRA}:   alu_opcode = `ALU_SRA; // @joshdelg Added implementation of SRA
+            {`SPECIAL, `SRAV}:  alu_opcode = `ALU_SRA; // @joshdelg Added implementation of SRAV
+            // @joshdelg Special2
+            {`SPECIAL2, `MUL}:   alu_opcode = `ALU_MUL; // @joshdelg Added implementation of MUL
             // compare rs data to 0, only care about 1 operand
             {`BGTZ, `DC6}:      alu_opcode = `ALU_PASSX;
             {`BLEZ, `DC6}:      alu_opcode = `ALU_PASSX;
