@@ -122,6 +122,7 @@ module decode (
             {`SPECIAL, `SUBU}:  alu_opcode = `ALU_SUBU;
             {`SPECIAL, `AND}:   alu_opcode = `ALU_AND;
             {`SPECIAL, `OR}:    alu_opcode = `ALU_OR;
+            {`SPECIAL, `XOR}:   alu_opcode = `ALU_XOR; // @joshdelg Added implementation of XOR
             {`SPECIAL, `MOVN}:  alu_opcode = `ALU_PASSX;
             {`SPECIAL, `MOVZ}:  alu_opcode = `ALU_PASSX;
             {`SPECIAL, `SLT}:   alu_opcode = `ALU_SLT;
@@ -156,8 +157,12 @@ module decode (
 
     wire [31:0] imm_sign_extend = {{16{immediate[15]}}, immediate};
     wire [31:0] imm_upper = {immediate, 16'b0};
+    wire [31:0] imm_zero_extend = {16'b0, immediate}; // @joshdelg Implement zero extension
 
-    wire [31:0] imm = (op == `LUI) ? imm_upper : imm_sign_extend;
+    // @joshdelg Add additional casing for zero extension
+    wire [31:0] imm = (op == `LUI) ? imm_upper : 
+                        (op == `ORI) ? imm_zero_extend :
+                            imm_sign_extend;
 
 //******************************************************************************
 // forwarding and stalling logic
