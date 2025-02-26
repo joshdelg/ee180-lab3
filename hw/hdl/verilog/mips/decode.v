@@ -91,10 +91,11 @@ module decode (
 
     wire isSLL = (op == `SPECIAL) & (funct == `SLL);
     wire isSRL = (op == `SPECIAL) & (funct == `SRL);
+    wire isSRA = (op == `SPECIAL) & (funct == `SRA); // @joshdelg Implementation of SRA
     wire isSLLV = (op == `SPECIAL) & (funct == `SLLV);
     wire isSRLV = (op == `SPECIAL) & (funct == `SRLV);
 
-    wire isShiftImm = isSLL | isSRL;
+    wire isShiftImm = isSLL | isSRL | isSRA; // @joshdelg Added isSRA
     wire isShift = isShiftImm | isSLLV | isSRLV;
 
 //******************************************************************************
@@ -109,6 +110,7 @@ module decode (
             {`SLTIU, `DC6}:     alu_opcode = `ALU_SLTU;
             {`ANDI, `DC6}:      alu_opcode = `ALU_AND;
             {`ORI, `DC6}:       alu_opcode = `ALU_OR;
+            {`XORI, `DC6}:      alu_opcode = `ALU_XOR; // @joshdelg Implementing XORI
             {`LB, `DC6}:        alu_opcode = `ALU_ADD;
             {`LW, `DC6}:        alu_opcode = `ALU_ADD;
             {`LBU, `DC6}:       alu_opcode = `ALU_ADD;
@@ -131,6 +133,7 @@ module decode (
             {`SPECIAL, `SRL}:   alu_opcode = `ALU_SRL;
             {`SPECIAL, `SLLV}:  alu_opcode = `ALU_SLL;
             {`SPECIAL, `SRLV}:  alu_opcode = `ALU_SRL;
+            {`SPECIAL, `SRA}:   alu_opcode = `ALU_SRA; // @joshdelg Added implementation of SRA
             // compare rs data to 0, only care about 1 operand
             {`BGTZ, `DC6}:      alu_opcode = `ALU_PASSX;
             {`BLEZ, `DC6}:      alu_opcode = `ALU_PASSX;
@@ -161,7 +164,7 @@ module decode (
 
     // @joshdelg Add additional casing for zero extension
     wire [31:0] imm = (op == `LUI) ? imm_upper : 
-                        (op == `ORI) ? imm_zero_extend :
+                        (|{op == `ORI, op == `ANDI, op == `XORI}) ? imm_zero_extend :
                             imm_sign_extend;
 
 //******************************************************************************
@@ -178,7 +181,7 @@ module decode (
     wire isLUI = op == `LUI;
     wire read_from_rs = ~|{isLUI, jump_target, isShiftImm};
 
-    wire isALUImm = |{op == `ADDI, op == `ADDIU, op == `SLTI, op == `SLTIU, op == `ANDI, op == `ORI};
+    wire isALUImm = |{op == `ADDI, op == `ADDIU, op == `SLTI, op == `SLTIU, op == `ANDI, op == `ORI, op == `XORI};
     wire read_from_rt = ~|{isLUI, jump_target, isALUImm, mem_read};
 
     assign stall = rs_mem_dependency & read_from_rs;

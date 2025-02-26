@@ -23,8 +23,8 @@ boot:
     sra     $t1, $t0, 4         # B = 0xdeafbeef >> 4 = 0xfdeafbee
     lui     $t2, 0xfdea         # C = 0xfdeafbee
     ori     $t2, $t2, 0xfbee
-    subu    $t3, $t1, $t2       # D = B - C = 1
-    sltiu   $v0, $t3, 1
+    subu    $t3, $t1, $t2       # D = B - C = 0
+    sltiu   $v0, $t3, 1         # If D = 0, write 1 to test
     sw      $v0, 4($s0)         # Set the test result
     sw      $s1, 0($s0)         # Set 'done'
 
