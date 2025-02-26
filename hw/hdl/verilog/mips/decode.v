@@ -222,7 +222,9 @@ module decode (
 // Memory control
 //******************************************************************************
     assign mem_we = |{op == `SW, op == `SB, op == `SC};    // write to memory
-    assign mem_read = 1'b0;                     // use memory data for writing to a register
+    // assign mem_read = 1'b0;                     // use memory data for writing to a register
+    // @joshdelg Implement lw
+    assign mem_read = |{op == `LW, op == `LB, op == `LBU};
     assign mem_byte = |{op == `SB, op == `LB, op == `LBU};    // memory operations use only one byte
     assign mem_signextend = ~|{op == `LBU};     // sign extend sub-word memory reads
 
