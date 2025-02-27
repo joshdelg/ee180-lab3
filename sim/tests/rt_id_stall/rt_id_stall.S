@@ -25,14 +25,25 @@ boot:
     nop
     nop
     nop
-    ori    $t1, $0, 0 # t1 = 0
+    addi    $t1, $0, -4 # t1 = -4
     nop
     nop
     addi    $t2, $0, 5 # t2 = 5
     nop
     nop
-    addi   $t1, $t1, -4      # t1 = -4
-    add    $t2, $t1, $t2     # add is dep on rt
+    nop
+    sw      $t1, ($t0)      # loc(t0) == -4
+    nop
+    nop
+    nop
+    addi    $t1, $0, 0     # reset t1 back to -4
+    nop
+    nop
+    lw     $t1, ($t0)      # load in -4, t1 = -4
+    add    $t2, $t2, $t1    # 5 - 4 # t2 = 1
+    nop
+    nop
+    nop
     nop
     nop
     nop

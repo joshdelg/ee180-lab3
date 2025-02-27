@@ -187,9 +187,12 @@ module decode (
     // @bala
     assign rt_data = forward_rt_mem ? reg_write_data_mem : rt_data_in;
 
-    wire rs_mem_dependency = &{rs_addr == reg_write_addr_ex, mem_read_ex, rs_addr != `ZERO}; // TODO
+    wire rs_mem_dependency = &{rs_addr == reg_write_addr_ex, mem_read_ex, rs_addr != `ZERO};
 
+    // load use cases, TODO: make sure we don't stall on add 
     // @bala
+    wire rt_mem_dependency = &{rt_addr == reg_write_addr_ex, mem_read_ex, rt_addr != `ZERO}; // if we know we are reading and execute rt addr is same
+
 
     wire isLUI = op == `LUI;
     wire read_from_rs = ~|{isLUI, jump_target, isShiftImm};
@@ -197,7 +200,7 @@ module decode (
     wire isALUImm = |{op == `ADDI, op == `ADDIU, op == `SLTI, op == `SLTIU, op == `ANDI, op == `ORI, op == `XORI};
     wire read_from_rt = ~|{isLUI, jump_target, isALUImm, mem_read};
 
-    assign stall = rs_mem_dependency & read_from_rs; // TODO for rt
+    assign stall = (rs_mem_dependency | rt_mem_dependency) & read_from_rs; // TODO for rt
 
     assign jr_pc = rs_data;
     assign mem_write_data = rt_data;
