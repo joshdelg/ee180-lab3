@@ -242,7 +242,8 @@ module decode (
 //******************************************************************************
 // Memory control
 //******************************************************************************
-    assign mem_we = |{op == `SW, op == `SB, op == `SC};    // write to memory
+    // assign mem_we = |{op == `SW, op == `SB, (op == `SC & should_write)};    // write to memory
+    assign mem_we = |{op == `SW, op == `SB, op == `SC};
     // assign mem_read = 1'b0;                     // use memory data for writing to a register
     // @joshdelg Implement lw
     assign mem_read = |{op == `LW, op == `LB, op == `LBU, op == `LL};
@@ -255,10 +256,16 @@ module decode (
     assign mem_sc_id = (op == `SC);
 
     // 'atomic_id' is high when a load-linked has not been followed by a store.
-    assign atomic_id = (op == `LL); // we need to keep this one when LL
+    assign atomic_id = (op == `LL); // this goes high for one cycle and passes it along to the atomic_ex
+    // atomic_ex has the LL == high
 
     // 'mem_sc_mask_id' is high when a store conditional should not store
-    assign mem_sc_mask_id = 1'b0; // high when shouldn't store
+    assign mem_sc_mask_id = (atomic_ex & (op == `SW | op == `SB)); 
+    // high when shouldn't store
+    // atomic_ex should be high when 
+    
+    //if (atomic_id) -> if (mem_sc_mask_id != 0) -> rt_data = 1 or rt_data = 0
+//    wire should_write =  atomic_id ? !mem_sc_mask_id ? 1 : 0 : 0;
 
 //******************************************************************************
 // Branch resolution
