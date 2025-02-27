@@ -61,7 +61,10 @@ module mips_cpu (
 
         // @joshdelg Inputs for branch control
         .should_branch  (jump_branch_id),
-        .branch_offset  (branch_offset_id)
+        .branch_offset  (branch_offset_id),
+        .is_jr          (jump_reg_id),
+        .jump_reg_val   (jr_pc_id)
+
     );
 
     assign pc = pc_if; // output pc to parent module

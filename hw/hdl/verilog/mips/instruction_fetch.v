@@ -17,12 +17,15 @@ module instruction_fetch (
 
     // @joshdelg: Bit for if taking a branch, offset to branch to
     input should_branch,
-    input signed [31:0] branch_offset
+    input signed [31:0] branch_offset,
+    input [31:0] jump_reg_val,
+    input is_jr
 );
 
 
     wire [31:0] pc_id_p4 = pc_id + 3'h4;
-    wire [31:0] j_addr = {pc_id_p4[31:28], instr_id[25:0], 2'b0};
+    wire [31:0] j_addr = {pc_id_p4[31:28], instr_id[25:0], 2'b0}; // instr_id[25:0] = absolute instruction/pc
+
     
     // Logic to support beq/bne
     // 1. Add a new wire that grabs address from ID register
@@ -31,7 +34,7 @@ module instruction_fetch (
     // wire [31:0] pc_next = (jump_target) ? j_addr : (pc + 3'h4);
     wire [31:0] pc_next = pc + 3'h4;
     wire [31:0] pc_branch = pc + branch_offset;
-    wire [31:0] pc_jump = j_addr;
+    wire [31:0] pc_jump = is_jr ? jump_reg_val : j_addr;
 
     wire [31:0] new_pc = (should_branch) ? pc_branch :
                             (jump_target) ? pc_jump :
