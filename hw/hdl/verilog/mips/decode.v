@@ -37,11 +37,13 @@ module decode (
 
     output wire stall,
 
+    // forwarding from ex
     input reg_we_ex,
     input [4:0] reg_write_addr_ex,
     input [31:0] alu_result_ex,
     input mem_read_ex,
 
+    // forwarding
     input reg_we_mem,
     input [4:0] reg_write_addr_mem,
     input [31:0] reg_write_data_mem,
@@ -177,10 +179,17 @@ module decode (
 
     wire forward_rs_mem = &{rs_addr == reg_write_addr_mem, rs_addr != `ZERO, reg_we_mem};
 
-    assign rs_data = forward_rs_mem ? reg_write_data_mem : rs_data_in;
-    assign rt_data = rt_data_in;
+    // @bala
+    wire forward_rt_mem = &{rt_addr == reg_write_addr_mem, rt_addr != `ZERO, reg_we_mem}; // if we are writing to rt earlier, 
 
-    wire rs_mem_dependency = &{rs_addr == reg_write_addr_ex, mem_read_ex, rs_addr != `ZERO};
+    assign rs_data = forward_rs_mem ? reg_write_data_mem : rs_data_in;
+
+    // @bala
+    assign rt_data = forward_rt_mem ? reg_write_data_mem : rt_data_in;
+
+    wire rs_mem_dependency = &{rs_addr == reg_write_addr_ex, mem_read_ex, rs_addr != `ZERO}; // TODO
+
+    // @bala
 
     wire isLUI = op == `LUI;
     wire read_from_rs = ~|{isLUI, jump_target, isShiftImm};
@@ -188,7 +197,7 @@ module decode (
     wire isALUImm = |{op == `ADDI, op == `ADDIU, op == `SLTI, op == `SLTIU, op == `ANDI, op == `ORI, op == `XORI};
     wire read_from_rt = ~|{isLUI, jump_target, isALUImm, mem_read};
 
-    assign stall = rs_mem_dependency & read_from_rs;
+    assign stall = rs_mem_dependency & read_from_rs; // TODO for rt
 
     assign jr_pc = rs_data;
     assign mem_write_data = rt_data;
