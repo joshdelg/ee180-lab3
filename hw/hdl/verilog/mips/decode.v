@@ -177,24 +177,28 @@ module decode (
 // forwarding and stalling logic
 //******************************************************************************
     // @bala: forward from exe
-    wire forward_rs_exe = &{rs_addr == reg_write_addr_ex, rs_addr != `ZERO, reg_we_ex}; // TODO: why is reg_we_ex always low???
-
-    wire forward_rs_mem = &{rs_addr == reg_write_addr_mem, rs_addr != `ZERO, reg_we_mem};
-
+    wire forward_rs_exe = &{rs_addr == reg_write_addr_ex, rs_addr != `ZERO, reg_we_ex}; // tells us that we will eventually write the value to a register
+    wire forward_rs_mem = &{rs_addr == reg_write_addr_mem, rs_addr != `ZERO, reg_we_mem}; // multiplex reg_we to both
     // @bala
-    wire forward_rt_mem = &{rt_addr == reg_write_addr_mem, rt_addr != `ZERO, reg_we_mem}; // if we are writing to rt earlier, 
-
     wire[31:0] mem_rs_data = forward_rs_mem ? reg_write_data_mem : rs_data_in;
     wire[31:0] exe_rs_data = forward_rs_exe ? alu_result_ex : rs_data_in;
     assign rs_data = forward_rs_exe ? exe_rs_data : mem_rs_data;
 
 
     // @bala
-    assign rt_data = forward_rt_mem ? reg_write_data_mem : rt_data_in;
+    wire forward_rt_exe = &{rt_addr == reg_write_addr_ex, rt_addr != `ZERO, reg_we_ex};
+    wire forward_rt_mem = &{rt_addr == reg_write_addr_mem, rt_addr != `ZERO, reg_we_mem}; // if we are writing to rt earlier, 
 
-    wire rs_mem_dependency = &{rs_addr == reg_write_addr_ex, mem_read_ex, rs_addr != `ZERO};
+    wire[31:0] mem_rt_data = forward_rt_mem ? reg_write_data_mem : rt_data_in;
+    wire[31:0] exe_rt_data = forward_rt_exe ? alu_result_ex : rt_data_in;
+    assign rt_data = forward_rt_exe ? exe_rt_data : mem_rt_data;
+
+    // assign rt_data = forward_rt_mem ? reg_write_data_mem : rt_data_in;
+
+
 
     // load use cases, TODO: make sure we don't stall on add 
+    wire rs_mem_dependency = &{rs_addr == reg_write_addr_ex, mem_read_ex, rs_addr != `ZERO};
     // @bala
     wire rt_mem_dependency = &{rt_addr == reg_write_addr_ex, mem_read_ex, rt_addr != `ZERO}; // if we know we are reading and execute rt addr is same
 
