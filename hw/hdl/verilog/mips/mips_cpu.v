@@ -187,12 +187,13 @@ module mips_cpu (
     // assign mem_read_mem = 1'b0;
     // assign mem_read_mem = ()
     assign mem_read_en = mem_read_ex;
-    assign mem_write_en[3] = mem_we_ex & (~mem_byte_ex | (mem_addr[1:0] == 2'b00));
-    assign mem_write_en[2] = mem_we_ex & (~mem_byte_ex | (mem_addr[1:0] == 2'b01));
-    assign mem_write_en[1] = mem_we_ex & (~mem_byte_ex | (mem_addr[1:0] == 2'b10));
-    assign mem_write_en[0] = mem_we_ex & (~mem_byte_ex | (mem_addr[1:0] == 2'b11));
+    assign mem_write_en[3] = mem_we_ex & ((~mem_byte_ex & ~mem_hb_ex) | (mem_byte_ex & mem_addr[1:0] == 2'b00) | (mem_hb_ex & mem_addr[1:0] == 2'b00));
+    assign mem_write_en[2] = mem_we_ex & ((~mem_byte_ex & ~mem_hb_ex) | (mem_byte_ex & mem_addr[1:0] == 2'b01) | (mem_hb_ex & mem_addr[1:0] == 2'b00));
+    assign mem_write_en[1] = mem_we_ex & ((~mem_byte_ex & ~mem_hb_ex) | (mem_byte_ex & mem_addr[1:0] == 2'b10) | (mem_hb_ex & mem_addr[1:0] == 2'b10));
+    assign mem_write_en[0] = mem_we_ex & ((~mem_byte_ex & ~mem_hb_ex) | (mem_byte_ex & mem_addr[1:0] == 2'b11) | (mem_hb_ex & mem_addr[1:0] == 2'b10));
     assign mem_addr = alu_result_ex;
-    assign mem_write_data = (mem_byte_ex) ? {4{mem_write_data_ex[7:0]}} : mem_write_data_ex;
+    assign mem_write_data = (mem_byte_ex) ? {4{mem_write_data_ex[7:0]}} : 
+                                (mem_hb_ex) ? {2{mem_write_data_ex[15:0]}} : mem_write_data_ex;
     assign mem_read_data_byte_select =  (alu_result_mem[1:0] == 2'b00) ? mem_read_data[31:24] :
                                        ((alu_result_mem[1:0] == 2'b01) ? mem_read_data[23:16] :
                                        ((alu_result_mem[1:0] == 2'b10) ? mem_read_data[15:8] : mem_read_data[7:0]));
