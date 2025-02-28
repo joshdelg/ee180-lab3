@@ -40,9 +40,12 @@ module mips_cpu (
     wire mem_we_id, mem_we_ex;
     wire mem_read_id, mem_read_ex, mem_read_mem;
     wire mem_byte_id, mem_byte_ex, mem_byte_mem;
+    wire mem_hb_id, mem_hb_ex, mem_hb_mem;
     wire mem_signextend_id, mem_signextend_ex, mem_signextend_mem;
     wire [7:0] mem_read_data_byte_select;
+    wire [15:0] mem_read_data_hb_select;
     wire [31:0] mem_read_data_byte_extend;
+    wire [31:0] mem_read_data_hb_extend;
     wire mem_atomic_id, mem_atomic_ex, mem_atomic_en, mem_sc_mask_id;
     wire mem_sc_id, mem_sc_ex;
     wire alu_overflow;
@@ -100,6 +103,7 @@ module mips_cpu (
         .mem_write_data     (mem_write_data_id),
         .mem_read           (mem_read_id),
         .mem_byte           (mem_byte_id),
+        .mem_hb             (mem_hb_id),
         .mem_signextend     (mem_signextend_id),
         .reg_we             (reg_we_id),
         .movn               (movn_id),
@@ -147,6 +151,7 @@ module mips_cpu (
     dffarre mem_we_id2ex (.clk(clk), .ar(rst), .r(rst_id), .en(en), .d(mem_we_id & ~mem_sc_mask_id), .q(mem_we_ex)); // we are not storing here
     dffarre mem_read_id2ex (.clk(clk), .ar(rst), .r(rst_id), .en(en), .d(mem_read_id), .q(mem_read_ex));
     dffarre mem_byte_id2ex (.clk(clk), .ar(rst), .r(rst_id), .en(en), .d(mem_byte_id), .q(mem_byte_ex));
+    dffarre mem_hb_id2ex (.clk(clk), .ar(rst), .r(rst_id), .en(en), .d(mem_hb_id), .q(mem_hb_ex));
     dffarre mem_signextend_id2ex (.clk(clk), .ar(rst), .r(rst_id), .en(en), .d(mem_signextend_id), .q(mem_signextend_ex));
     
     // needed for W stage
@@ -170,6 +175,7 @@ module mips_cpu (
     dffare #(32) alu_result_ex2mem (.clk(clk), .r(rst), .en(en), .d(alu_sc_result_ex), .q(alu_result_mem));
     dffare mem_read_ex2mem (.clk(clk), .r(rst), .en(en), .d(mem_read_ex), .q(mem_read_mem));
     dffare mem_byte_ex2mem (.clk(clk), .r(rst), .en(en), .d(mem_byte_ex), .q(mem_byte_mem));
+    dffare mem_hb_ex2mem (.clk(clk), .r(rst), .en(en), .d(mem_hb_ex), .q(mem_hb_mem));
     dffare mem_signextend_ex2mem (.clk(clk), .r(rst), .en(en), .d(mem_signextend_ex), .q(mem_signextend_mem));
 
 
@@ -190,8 +196,12 @@ module mips_cpu (
     assign mem_read_data_byte_select =  (alu_result_mem[1:0] == 2'b00) ? mem_read_data[31:24] :
                                        ((alu_result_mem[1:0] == 2'b01) ? mem_read_data[23:16] :
                                        ((alu_result_mem[1:0] == 2'b10) ? mem_read_data[15:8] : mem_read_data[7:0]));
+    assign mem_read_data_hb_select = alu_result_mem[1:0] == 2'b00 ? mem_read_data[31:16] : mem_read_data[15:0];
+
     assign mem_read_data_byte_extend = {{24{mem_signextend_mem & mem_read_data_byte_select[7]}}, mem_read_data_byte_select};
-    assign mem_out = (mem_byte_mem) ? mem_read_data_byte_extend : mem_read_data;
+    assign mem_read_data_hb_extend   = {{16{mem_signextend_mem & mem_read_data_hb_select[15]}}, mem_read_data_hb_select};
+    assign mem_out = (mem_byte_mem) ? mem_read_data_byte_extend : 
+                    (mem_hb_mem) ? mem_read_data_hb_extend : mem_read_data;
     assign reg_write_data_mem = mem_read_mem ? mem_out : alu_result_mem;
 
     // needed for W stage

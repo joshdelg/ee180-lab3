@@ -36,8 +36,10 @@
 `define LL    6'b110000
 `define LW    6'b100011
 `define LB    6'b100000
+`define LH    6'b100001
 `define LBU   6'b100100
 `define SB    6'b101000
+`define SH    6'b101001
 `define SC    6'b111000
 `define SW    6'b101011
 

@@ -25,6 +25,7 @@ module decode (
     output wire [31:0] mem_write_data,
     output wire mem_read,
     output wire mem_byte,
+    output wire mem_hb,
     output wire mem_signextend,
     output wire reg_we,
     output wire movn,
@@ -116,6 +117,7 @@ module decode (
             {`ORI, `DC6}:       alu_opcode = `ALU_OR;
             {`XORI, `DC6}:      alu_opcode = `ALU_XOR; // @joshdelg Implementing XORI
             {`LB, `DC6}:        alu_opcode = `ALU_ADD;
+            {`LH, `DC6}:        alu_opcode = `ALU_ADD;
             {`LW, `DC6}:        alu_opcode = `ALU_ADD;
             {`LL, `DC6}:        alu_opcode = `ALU_ADD;
             {`LBU, `DC6}:       alu_opcode = `ALU_ADD;
@@ -247,8 +249,9 @@ module decode (
     assign mem_we = |{op == `SW, op == `SB, op == `SC};
     // assign mem_read = 1'b0;                     // use memory data for writing to a register
     // @joshdelg Implement lw
-    assign mem_read = |{op == `LW, op == `LB, op == `LBU, op == `LL};
+    assign mem_read = |{op == `LW, op == `LB, op == `LBU, op == `LH, op == `LL};
     assign mem_byte = |{op == `SB, op == `LB, op == `LBU};    // memory operations use only one byte
+    assign mem_hb   = |{op == `SH, op == `LH};
     assign mem_signextend = ~|{op == `LBU};     // sign extend sub-word memory reads
 
 //******************************************************************************
