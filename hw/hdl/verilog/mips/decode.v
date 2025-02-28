@@ -213,7 +213,7 @@ module decode (
     wire isALUImm = |{op == `ADDI, op == `ADDIU, op == `SLTI, op == `SLTIU, op == `ANDI, op == `ORI, op == `XORI};
     wire read_from_rt = ~|{isLUI, jump_target, isALUImm, mem_read};
 
-    assign stall = (rs_mem_dependency | rt_mem_dependency) & read_from_rs; // TODO for rt
+    assign stall = (rs_mem_dependency & read_from_rs) | (rt_mem_dependency & read_from_rt);
 
     assign jr_pc = rs_data;
     assign mem_write_data = rt_data;
@@ -292,8 +292,8 @@ module decode (
     // 
     assign jump_branch = |{isBEQ & isEqual,
                            isBNE & ~isEqual,
-                           isBGTZ & (rs_data > 0),
-                           isBGEZNL & (rs_data >= 0),
+                           isBGTZ & ($signed(rs_data) > 0),
+                           isBGEZNL & ($signed(rs_data) >= 0),
                            isBLTZNL & ($signed(rs_data) < 0),
                            isBLEZ & ($signed(rs_data) <= 0)
                            };
