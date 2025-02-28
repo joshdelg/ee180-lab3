@@ -122,6 +122,7 @@ module decode (
             {`LL, `DC6}:        alu_opcode = `ALU_ADD;
             {`LBU, `DC6}:       alu_opcode = `ALU_ADD;
             {`SB, `DC6}:        alu_opcode = `ALU_ADD;
+            {`SH, `DC6}:        alu_opcode = `ALU_ADD;
             {`SW, `DC6}:        alu_opcode = `ALU_ADD;
             {`SC, `DC6}:        alu_opcode = `ALU_ADD;
             {`BEQ, `DC6}:       alu_opcode = `ALU_SUBU;
@@ -247,7 +248,7 @@ module decode (
 // Memory control
 //******************************************************************************
     // assign mem_we = |{op == `SW, op == `SB, (op == `SC & should_write)};    // write to memory
-    assign mem_we = |{op == `SW, op == `SB, op == `SC};
+    assign mem_we = |{op == `SW, op == `SB, op == `SH, op == `SC};
     // assign mem_read = 1'b0;                     // use memory data for writing to a register
     // @joshdelg Implement lw
     assign mem_read = |{op == `LW, op == `LB, op == `LBU, op == `LH, op == `LL};
