@@ -21,7 +21,7 @@ module mips_cpu (
     wire [31:0] pc_if, pc_id;
     wire [31:0] instr_sav;
     wire [31:0] instr_id;
-    wire jump_branch_id, jump_target_id, jump_reg_id; // Control flow generated in ID stage, sent to IF
+    wire jump_branch_id, jump_target_id, jump_reg_id, jalr_id; // Control flow generated in ID stage, sent to IF
     wire [31:0] branch_offset_id; // @joshdelg Branch offset generated in ID stage, sent to IF
     wire [4:0] rs_addr_id, rt_addr_id;
     wire [31:0] rs_data_id, rt_data_id;
@@ -62,8 +62,9 @@ module mips_cpu (
         // @joshdelg Inputs for branch control
         .should_branch  (jump_branch_id),
         .branch_offset  (branch_offset_id),
+        .jump_reg_val   (jr_pc_id),
         .is_jr          (jump_reg_id),
-        .jump_reg_val   (jr_pc_id)
+        .is_jalr        (jalr_id)
 
     );
 
@@ -90,6 +91,7 @@ module mips_cpu (
         .jump_branch        (jump_branch_id),
         .jump_target        (jump_target_id),
         .jump_reg           (jump_reg_id),
+        .isJalr               (jalr_id),
         .jr_pc              (jr_pc_id),
         .alu_opcode         (alu_opcode_id),
         .alu_op_x           (alu_op_x_id),
@@ -129,7 +131,7 @@ module mips_cpu (
     // & mem_read_id
     wire atomic_en = en & (mem_atomic_id | mem_sc_id | mem_we_id);
     // mem_atomic_id = ('LL == op) mem_sc_id is high when (`LL == op)
-    dffarre       atomic  (.clk(clk), .ar(rst), .r(0), .en(atomic_en), .d(mem_atomic_id), .q(mem_atomic_ex)); // mem_atomic_ex is one if there has been an LL
+    dffarre       atomic  (.clk(clk), .ar(rst), .r(1'b0), .en(atomic_en), .d(mem_atomic_id), .q(mem_atomic_ex)); // mem_atomic_ex is one if there has been an LL
     // before atomic_en goes high anytime there is a load, we should only transfer value of atomic_id when it is an LL or an SC 
     dffarre       sc      (.clk(clk), .ar(rst), .r(rst_id), .en(en), .d(mem_sc_id), .q(mem_sc_ex)); // mem_sc_ex is high if current instruction is an sc
 

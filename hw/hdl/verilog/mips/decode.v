@@ -16,6 +16,7 @@ module decode (
     output wire jump_branch,
     output wire jump_target,
     output wire jump_reg,
+    output wire isJalr,
     output wire [31:0] jr_pc,
     output reg [3:0] alu_opcode,
     output wire [31:0] alu_op_x,
@@ -227,9 +228,9 @@ module decode (
     // for immediate operations, use Imm
     // otherwise use rt
 
-    assign alu_op_y = (use_imm) ? imm : (isJal) ? pc + 8: rt_data;
+    assign alu_op_y = (use_imm) ? imm : (isJal | isJalr) ? pc + 8: rt_data;
     // assign alu_op_y = (use_imm) ? imm : rt_data;
-    assign reg_write_addr = (use_imm) ? rt_addr : (isJal) ? `RA : rd_addr;
+    assign reg_write_addr = (use_imm) ? rt_addr : (isJal | isJalr) ? `RA : rd_addr;
     // assign reg_write_addr = (use_imm) ? rt_addr : rd_addr;
     // determine when to write back to a register (any operation that isn't an
     // unconditional store, non-linking branch, or non-linking jump)
@@ -293,11 +294,10 @@ module decode (
                            };
     // @joshdelg Assign the target of a branch to imm
     assign branch_offset = imm <<< 2; // Arithmetic left shift
-    
 
-
-    assign jump_target = isJ | jump_reg | isJal;
+    assign jump_target = isJ | jump_reg | isJal | isJalr;
     assign isJal = op == `JAL;
+    assign isJalr = &{funct == `JALR, op == 0};
     assign jump_reg = &{funct == `JR, op == 0};
 
 

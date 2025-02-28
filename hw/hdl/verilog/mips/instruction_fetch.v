@@ -19,7 +19,8 @@ module instruction_fetch (
     input should_branch,
     input signed [31:0] branch_offset,
     input [31:0] jump_reg_val,
-    input is_jr
+    input is_jr,
+    input is_jalr
 );
 
 
@@ -34,7 +35,7 @@ module instruction_fetch (
     // wire [31:0] pc_next = (jump_target) ? j_addr : (pc + 3'h4);
     wire [31:0] pc_next = pc + 3'h4;
     wire [31:0] pc_branch = pc + branch_offset;
-    wire [31:0] pc_jump = is_jr ? jump_reg_val : j_addr;
+    wire [31:0] pc_jump = (is_jr | is_jalr) ? jump_reg_val : j_addr;
 
     wire [31:0] new_pc = (should_branch) ? pc_branch :
                             (jump_target) ? pc_jump :
