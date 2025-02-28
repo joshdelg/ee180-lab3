@@ -25,10 +25,12 @@ boot:
     addi    $t1, $0, -1     # t1 = -1
     sw      $0,  0($t0)     # 0 in (t0)
     ll      $t1, 0($t0)     # 0 in t1, load link on
+    sw      $0,  0($t0)     # store 0, break atomicity
     addi    $t1, $t1, 1     # t1 = 1
-    sc      $t1, 0($t0)     # store 1 in (t0) # $rt, offset($rs), this succeeds -> t1=1
-    lw      $t3, 0($t0)     # load 1 from (t0)
-    and     $t3, $t3, $t1   # stored successfully and no atomic errors (t1)
+    sc      $t1, 0($t0)     # Store fails, ($t0) = 0, $t1 = 0
+    lw      $t3, 0($t0)     # t3 = 0
+    add     $t3, $t3, $t1   # Sum should be 0 becuase both are 0
+    addi    $t3, $t3, 1     # Sum should be exactly 1
     sw      $t3, 4($s0)     # Set the test result
     sw      $s1, 0($s0)     # Set 'done'
 

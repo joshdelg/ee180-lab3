@@ -260,7 +260,10 @@ module decode (
     // atomic_ex has the LL == high
 
     // 'mem_sc_mask_id' is high when a store conditional should not store
-    assign mem_sc_mask_id = (atomic_ex & (op == `SW | op == `SB)); 
+    // Store conditional should not store if haven't been prefixed by LL or some
+    // store has already happened (so atomic ex will be low because no longer atomic)
+    assign mem_sc_mask_id = ~atomic_ex & op == `SC;
+    // assign mem_sc_mask_id = (atomic_ex & (op == `SW | op == `SB)); 
     // high when shouldn't store
     // atomic_ex should be high when 
     

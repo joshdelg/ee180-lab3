@@ -127,10 +127,9 @@ module mips_cpu (
 
     // Load-linked / Store-conditional
     // & mem_read_id
-    wire atomic_en = en & (mem_atomic_id | mem_sc_id);
+    wire atomic_en = en & (mem_atomic_id | mem_sc_id | mem_we_id);
     // mem_atomic_id = ('LL == op) mem_sc_id is high when (`LL == op)
     dffarre       atomic  (.clk(clk), .ar(rst), .r(0), .en(atomic_en), .d(mem_atomic_id), .q(mem_atomic_ex)); // mem_atomic_ex is one if there has been an LL
-    dffarre       atomic  (.clk(clk), .ar(rst), .r(0), .en(en), .d(mem_sc_mask_id), .q(mem_sc_mask_id));
     // before atomic_en goes high anytime there is a load, we should only transfer value of atomic_id when it is an LL or an SC 
     dffarre       sc      (.clk(clk), .ar(rst), .r(rst_id), .en(en), .d(mem_sc_id), .q(mem_sc_ex)); // mem_sc_ex is high if current instruction is an sc
 
