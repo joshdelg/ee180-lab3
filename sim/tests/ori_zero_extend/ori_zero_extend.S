@@ -23,8 +23,6 @@ boot:
     lui     $t1, 0xF000
     ori     $t1, $t1, 0x0001    # $t1 = 0xF0000001
     and     $t0, $t0, $t1       # $t0 = 1 if was originally 0 extended as expected
-    nop
-    nop
     sw      $t0, 4($s0)         # Set the test result
     sw      $s1, 0($s0)         # Set 'done'
 

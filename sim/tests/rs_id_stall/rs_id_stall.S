@@ -19,35 +19,13 @@
 boot:
     lui     $s0, 0x8002         # Load the base address of the status/test registers
     ori     $s1, $0, 1          # Prepare the 'done' status
-    nop
-    nop
     ori     $t0, $0, 0x3210    # safe address
-    nop
-    nop
-    nop
     addi    $t1, $0, -4 # t1 = -4
-    nop
-    nop
     addi    $t2, $0, 5 # t2 = 5
-    nop
-    nop
-    nop
     sw      $t1, ($t0)      # loc(t0) == -4
-    nop
-    nop
-    nop
     addi    $t1, $0, 0     # reset t1 back to -4
-    nop
-    nop
     lw     $t1, ($t0)      # load in -4, t1 = -4
     add    $t2, $t1, $t2    # 5 - 4 # t2 = 1
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
     sw      $t2, 4($s0)
     sw      $s1, 0($s0)
 
