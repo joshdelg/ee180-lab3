@@ -132,6 +132,7 @@ module decode (
             {`SPECIAL, `SUBU}:  alu_opcode = `ALU_SUBU;
             {`SPECIAL, `AND}:   alu_opcode = `ALU_AND;
             {`SPECIAL, `OR}:    alu_opcode = `ALU_OR;
+            {`SPECIAL, `NOR}:    alu_opcode = `ALU_NOR;
             {`SPECIAL, `XOR}:   alu_opcode = `ALU_XOR; // @joshdelg Added implementation of XOR
             {`SPECIAL, `MOVN}:  alu_opcode = `ALU_PASSX;
             {`SPECIAL, `MOVZ}:  alu_opcode = `ALU_PASSX;
@@ -236,7 +237,7 @@ module decode (
     // assign reg_write_addr = (use_imm) ? rt_addr : rd_addr;
     // determine when to write back to a register (any operation that isn't an
     // unconditional store, non-linking branch, or non-linking jump)
-    assign reg_we = ~|{(mem_we & (op != `SC)), isJ, jump_reg, isBGEZNL, isBGTZ, isBLEZ, isBLTZNL, isBNE, isBEQ};
+    assign reg_we = ~|{(mem_we & (op != `SC)), isJ, jump_reg, isBGEZNL, isBGTZ, isBLEZ, isBLTZNL, isBNE, isBEQ}; // cases we won't write!
 
     // determine whether a register write is conditional
     assign movn = &{op == `SPECIAL, funct == `MOVN};

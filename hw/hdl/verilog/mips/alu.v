@@ -33,6 +33,7 @@ module alu (
             `ALU_ADDU:  alu_result = alu_op_x + alu_op_y;
             `ALU_AND:   alu_result = alu_op_x & alu_op_y;
             `ALU_OR:    alu_result = alu_op_x | alu_op_y;
+            `ALU_NOR:   alu_result = !(alu_op_x | alu_op_y);
             `ALU_XOR:   alu_result = alu_op_x ^ alu_op_y;               // @joshdelg Added implementation of XOR
             `ALU_SUB:   alu_result = alu_op_x - alu_op_y;
             `ALU_SUBU:  alu_result = alu_op_x - alu_op_y;

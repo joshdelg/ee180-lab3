@@ -1,12 +1,12 @@
 ###############################################################################
-# File         : movn.S
+# File         : sll.S
 # Project      : EE180 Lab 2: MIPS
 #
 # Standards/Formatting:
 #   MIPS gas, soft tab, 80 column
 #
 # Description:
-#   Test the functionality of the 'movn' instruction.
+#   Test the functionality of the 'sll' instruction.
 #
 ###############################################################################
 
@@ -18,16 +18,14 @@
 boot:
     lui     $s0, 0x8002         # Load the base address of the status/test registers
     ori     $s1, $0, 1          # Prepare the 'done' status
-    lui     $t0, 0xdeaf 
-    ori     $t0, $t0, 0xbeef
-    ori     $t1, $0, 0
-    movn    $t2, $t0, $s1       # $t2 gets 0xdeafbeef
-    movn    $t1, $t0, $0        # $t1 remains 0
-    subu    $t3, $t2, $t0
-    sltiu   $v0, $t3, 1
-    sltiu   $v1, $t1, 1
-    and     $v0, $v0, $v1
-    sw      $v0, 4($s0)         # Set the test result
+    lui     $t0, 0xdeaf         # A = 0xdeafbeef
+    ori     $t0, $t0, 0x0123
+    addi    $t6, $0, 4
+    sllv    $t1, $t0, $t6        # B = 0xdeaf0123 << 4 = 0xeaf01230
+    lui     $t2, 0xeaf0         # C = 0xeaf01231
+    ori     $t2, $t2, 0x1231
+    subu    $t3, $t2, $t1       # D = C - B = 1
+    sw      $t3, 4($s0)         # Set the test result
     sw      $s1, 0($s0)         # Set 'done'
 
 $done:
